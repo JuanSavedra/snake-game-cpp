@@ -58,10 +58,19 @@ GridPosition generateNewFood(const Snake &snake, int gridWidth, int gridHeight)
 void drawSquare(unsigned int VAO, unsigned int modelLoc, const GridPosition &position,
                 const glm::vec4 &color, unsigned int colorLoc)
 {
+    const unsigned int SCR_WIDTH = 800;
+    const unsigned int SCR_HEIGHT = 600;
+    
+    float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+    float scaleFactorX = 1.0f / aspectRatio; 
+
     glUniform4f(colorLoc, color.r, color.g, color.b, color.a);
     glm::mat4 model = glm::mat4(1.0f);
+    model = glm::scale(model, glm::vec3(scaleFactorX, 1.0f, 1.0f));
+
     model = glm::translate(model, glm::vec3((float)position.x + 0.5f,
-                           (float)position.y + 0.5f, 0.0f));
+    (float)position.y + 0.5f, 0.0f));
+    
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glBindVertexArray(VAO);
@@ -84,7 +93,7 @@ int main()
 {
     const unsigned int SCR_WIDTH = 800;
     const unsigned int SCR_HEIGHT = 600;
-    
+
     const int GRID_WIDTH = 20;
     const int GRID_HEIGHT = 20;
 
@@ -131,7 +140,7 @@ int main()
     };
 
     float lastTime = 0.0f;
-    const float MOVE_INTERVAL = 0.15f;
+    const float MOVE_INTERVAL = 0.2f;
 
     Snake snake(5, 5);
 
@@ -159,41 +168,50 @@ int main()
     unsigned int colorLoc = glGetUniformLocation(shader.ID, "objectColor");
 
     float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
+
     glm::mat4 projection = glm::ortho(
-        0.0f, (float)GRID_WIDTH * aspectRatio,
+        0.0f, (float)GRID_WIDTH,
         0.0f, (float)GRID_HEIGHT,
         -1.0f, 1.0f);
 
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     while (!glfwWindowShouldClose(window))
-    {   
-        //Input
+    {
+        // Input
         processInput(window, snake);
 
-        //Timer
+        // Timer
         float currentTime = (float)glfwGetTime();
         if (currentTime - lastTime >= MOVE_INTERVAL)
         {
-            snake.move(false);
-            
+            bool ateFood = (snake.getHead() == food);
+
+            snake.move(ateFood);
+
             if (snake.isOutOfBounds(GRID_WIDTH, GRID_HEIGHT) || snake.isSelfCollision())
             {
+                std::cout << "GAME OVER! Pontuação: " << snake.getBody().size() - 1 << std::endl;
                 glfwSetWindowShouldClose(window, true);
+            }
+
+            if (ateFood)
+            {
+                food = generateNewFood(snake, GRID_WIDTH, GRID_HEIGHT);
             }
 
             lastTime = currentTime;
         }
 
-        //Reset
+        // Reset
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         shader.use();
 
-        //Food render
+        // Food render
         drawSquare(VAO, modelLoc, food, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), colorLoc);
 
-        //Snake render
+        // Snake render
         glm::vec4 snakeColor(0.0f, 1.0f, 0.0f, 1.0f);
         for (const auto &segment : snake.getBody())
         {
