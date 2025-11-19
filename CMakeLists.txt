@@ -21,10 +21,11 @@ add_executable(SnakeGame
     src/main.cpp 
     src/glad.c
     src/Shader.cpp
+    src/Snake.cpp
 )
 
 target_link_libraries(SnakeGame
     PRIVATE
     glfw
-    ${OpenGL_LIBRARIES}  
+    ${OpenGL_LIBRARIES}
 )
