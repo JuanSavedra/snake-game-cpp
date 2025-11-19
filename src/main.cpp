@@ -15,6 +15,9 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+const int GRID_WIDTH = 20;
+const int GRID_HEIGHT = 20;
+
 glm::mat4 createOrthographicProjection(float left, float right, float bottom, float top, 
     float near, float far
 ) {
@@ -80,6 +83,10 @@ int main()
 
     Shader shader("res/shaders/snakeVertex.vert", "res/shaders/snakeColor.frag");
 
+    shader.use();
+    unsigned int projectionLoc = glGetUniformLocation(shader.ID, "projection");
+    unsigned int modelLoc = glGetUniformLocation(shader.ID, "model");
+
     while (!glfwWindowShouldClose(window))
     {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -92,13 +99,22 @@ int main()
 
         float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 
-        glm::mat4 projection = glm::ortho(-10.0f * aspectRatio, 10.0f * aspectRatio, -10.0f, 
-            10.0f, -1.0f, 1.0f
+        glm::mat4 projection = glm::ortho(
+            0.0f, (float)GRID_WIDTH * aspectRatio,
+            0.0f, (float)GRID_HEIGHT,
+            -1.0f, 1.0f
         );
 
-        unsigned int projectionLoc = glGetUniformLocation(shader.ID, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        int snakeX = 10;
+        int snakeY = 5;
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3((float)snakeX + 0.5f, (float)snakeY + 0.5f, 0.0f));
         
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
