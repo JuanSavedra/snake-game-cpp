@@ -170,7 +170,7 @@ int main()
     float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 
     glm::mat4 projection = glm::ortho(
-        0.0f, (float)GRID_WIDTH * aspectRatio,
+        0.0f, (float)GRID_WIDTH,
         0.0f, (float)GRID_HEIGHT,
         -1.0f, 1.0f);
 
