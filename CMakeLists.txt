@@ -22,6 +22,7 @@ add_executable(SnakeGame
     src/glad.c
     src/Shader.cpp
     src/Snake.cpp
+    src/Game.cpp
 )
 
 target_link_libraries(SnakeGame
