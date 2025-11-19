@@ -31,6 +31,7 @@ private:
 
     // OpenGL objects
     unsigned int VAO, VBO;
+    unsigned int gridVAO, gridVBO;
     unsigned int projectionLoc;
     unsigned int modelLoc;
     unsigned int colorLoc;

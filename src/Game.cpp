@@ -84,6 +84,29 @@ void Game::init()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    std::vector<float> gridVertices;
+    for (int i = 0; i <= gridWidth; ++i) {
+        gridVertices.push_back((float)i); gridVertices.push_back(0.0f); gridVertices.push_back(0.0f);
+        gridVertices.push_back((float)i); gridVertices.push_back((float)gridHeight); gridVertices.push_back(0.0f);
+    }
+    for (int i = 0; i <= gridHeight; ++i) {
+        gridVertices.push_back(0.0f); gridVertices.push_back((float)i); gridVertices.push_back(0.0f);
+        gridVertices.push_back((float)gridWidth); gridVertices.push_back((float)i); gridVertices.push_back(0.0f);
+    }
+
+    glGenVertexArrays(1, &gridVAO);
+    glGenBuffers(1, &gridVBO);
+
+    glBindVertexArray(gridVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, gridVBO);
+    glBufferData(GL_ARRAY_BUFFER, gridVertices.size() * sizeof(float), gridVertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     shader = new Shader("res/shaders/snakeVertex.vert", "res/shaders/snakeColor.frag");
     shader->use();
 
@@ -162,7 +185,7 @@ void Game::update()
 
 void Game::render()
 {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     shader->use();
 
@@ -175,6 +198,14 @@ void Game::render()
     {
         drawSquare(segment, snakeColor);
     }
+
+    // Grid render
+    glm::mat4 model = glm::mat4(1.0f);
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniform4f(colorLoc, 0.2f, 0.2f, 0.2f, 1.0f); // Dark gray for grid lines
+    glBindVertexArray(gridVAO);
+    glDrawArrays(GL_LINES, 0, (gridWidth + gridHeight + 2) * 2);
+    glBindVertexArray(0);
 }
 
 void Game::resetGame()
