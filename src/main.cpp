@@ -55,22 +55,22 @@ GridPosition generateNewFood(const Snake &snake, int gridWidth, int gridHeight)
     return newPosition;
 }
 
+void resetGame(Snake &snake, GridPosition &food, int gridWidth, int gridHeight)
+{
+    snake = Snake(gridWidth / 4, gridHeight / 2);
+    food = generateNewFood(snake, gridWidth, gridHeight);
+}
+
 void drawSquare(unsigned int VAO, unsigned int modelLoc, const GridPosition &position,
                 const glm::vec4 &color, unsigned int colorLoc)
 {
-    const unsigned int SCR_WIDTH = 800;
-    const unsigned int SCR_HEIGHT = 600;
-    
-    float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
-    float scaleFactorX = 1.0f / aspectRatio; 
-
     glUniform4f(colorLoc, color.r, color.g, color.b, color.a);
+
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::scale(model, glm::vec3(scaleFactorX, 1.0f, 1.0f));
 
     model = glm::translate(model, glm::vec3((float)position.x + 0.5f,
-    (float)position.y + 0.5f, 0.0f));
-    
+                                            (float)position.y + 0.5f, 0.0f));
+
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glBindVertexArray(VAO);
@@ -140,7 +140,7 @@ int main()
     };
 
     float lastTime = 0.0f;
-    const float MOVE_INTERVAL = 0.2f;
+    const float MOVE_INTERVAL = 0.1f;
 
     Snake snake(5, 5);
 
@@ -170,7 +170,7 @@ int main()
     float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 
     glm::mat4 projection = glm::ortho(
-        0.0f, (float)GRID_WIDTH,
+        0.0f, (float)GRID_WIDTH * aspectRatio,
         0.0f, (float)GRID_HEIGHT,
         -1.0f, 1.0f);
 
@@ -192,7 +192,7 @@ int main()
             if (snake.isOutOfBounds(GRID_WIDTH, GRID_HEIGHT) || snake.isSelfCollision())
             {
                 std::cout << "GAME OVER! Pontuação: " << snake.getBody().size() - 1 << std::endl;
-                glfwSetWindowShouldClose(window, true);
+                resetGame(snake, food, GRID_WIDTH, GRID_HEIGHT);
             }
 
             if (ateFood)

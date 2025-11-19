@@ -54,7 +54,7 @@ void Snake::changeDirection(Direction newDirection)
 bool Snake::isOutOfBounds(int gridWidth, int gridHeight) const
 {
   const GridPosition& head = getHead();
-  return head.x < 0 || head.x >= (gridWidth + 6) ||
+  return head.x < 0 || head.x >= gridWidth ||
          head.y < 0 || head.y >= gridHeight;
 }
 
